@@ -35,6 +35,8 @@ class YouTubeBrowser():
         self.addonPath = self.addon.getAddonInfo('path')
         
     def playVideo(self, videoid):
+        self.xbmc.executebuiltin('LIRC.Stop')
+        
         if self.osLinux:
             # the browser.sh has the specific url that is required to work with the specific linux browser
             # plus whatever remote control scripting that is required.
@@ -42,6 +44,7 @@ class YouTubeBrowser():
             self.common.log("Opening %s with videoid %s" % (path, videoid));
             
             self.subprocess.call('"'+path+'" "'+videoid+'"', shell=True)
+            
         elif self.osOsx:
             # TODO - create external osx specific browser script so this stuff can all
             # be customised for specific installations.
@@ -60,5 +63,8 @@ class YouTubeBrowser():
             elif self.os.path.exists(path64):
                 fullUrl = self.getFullPath(path, url)
                 self.subprocess.Popen(fullUrl, shell=True)
+                
+        self.xbmc.executebuiltin('LIRC.Start')
+        
     def getFullPath(self, path, url):
         return '"'+path+'" --start-maximized --disable-translate --disable-new-tab-first-run --no-default-browser-check --no-first-run --kiosk "'+url+'"'

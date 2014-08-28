@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# due to some issues with LIRC / UBUNTU / XBMC, hitting play button actually causes this script to be executed again
-# till that is fixed, I am at least going to reduce the problem by bailing out if chrome is already running.
+# Managed to resolve the issues with, but will leave this here anyway, as its a good fallback
 CHROME_STARTED=`ps -ef | grep google-chrome-unstable | grep -v "grep" | wc -l`
 if [ $CHROME_STARTED -gt 0 ]; then
 	exit 1;
