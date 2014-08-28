@@ -45,7 +45,7 @@ class YouTubeNavigation():
         self.storage = sys.modules["__main__"].storage
         self.scraper = sys.modules["__main__"].scraper
         self.subtitles = sys.modules["__main__"].subtitles
-
+        
         # This list contains the main menu structure the user first encounters when running the plugin
         #     label                        , path                                          , thumbnail                    ,  login                  ,  feed / action
         self.categories = (
@@ -76,6 +76,7 @@ class YouTubeNavigation():
             {'Title':self.language(30017)  ,'path':"/root/playlists"                       , 'thumbnail':"playlists"         , 'login':"true"  , 'user_feed':"playlists", 'folder':'true' },
             {'Title':self.language(30003)  ,'path':"/root/subscriptions"                   , 'thumbnail':"subscriptions"     , 'login':"true"  , 'user_feed':"subscriptions", 'folder':'true' },
             {'Title':self.language(30004)  ,'path':"/root/subscriptions/new"               , 'thumbnail':"newsubscriptions"  , 'login':"true"  , 'user_feed':"newsubscriptions" },
+            {'Title':self.language(30060)  ,'path':"/root/purchases"                       , 'thumbnail':"purchases"         , 'login':"true"  , 'scraper':"purchases", 'folder':'true' },
             {'Title':self.language(30005)  ,'path':"/root/uploads"                         , 'thumbnail':"uploads"           , 'login':"true"  , 'user_feed':"uploads" },
             {'Title':self.language(30045)  ,'path':"/root/downloads"                       , 'thumbnail':"downloads"         , 'login':"false" , 'feed':"downloads" },
             {'Title':self.language(30006)  ,'path':"/root/search"                          , 'thumbnail':"search"            , 'login':"false" , 'store':"searches", 'folder':'true' },
@@ -418,7 +419,7 @@ class YouTubeNavigation():
         self.common.log("", 5)
         get = params.get
         item = item_params.get
-
+        
         icon = item("icon", "default")
         if(get("scraper", "").find("music") > -1):
             icon = "music"
@@ -426,9 +427,9 @@ class YouTubeNavigation():
             icon = "discoball"
         elif(get("feed", "").find("live") > -1):
             icon = "live"
-
+        
         icon = self.utils.getThumbnail(icon)
-
+        
         listitem = self.xbmcgui.ListItem(item("Title"), iconImage=icon, thumbnailImage=item("thumbnail"))
 
         url = '%s?path=%s&action=play_video&videoid=%s' % (sys.argv[0], "/root/video", item("videoid"))
@@ -441,7 +442,13 @@ class YouTubeNavigation():
         listitem.addContextMenuItems(cm, replaceItems=True)
 
         listitem.setProperty("Video", "true")
-        listitem.setProperty("IsPlayable", "true")
+        
+        # the drm param gets dropped by list play list.
+        if get("drm", "no")  == "yes" or item("drm", "no") == "yes":
+            url += "&drm=yes"
+        else:
+            listitem.setProperty("IsPlayable", "true")
+        
         listitem.addStreamInfo('video', {'duration': item('Duration')})
         listitem.setInfo(type='Video', infoLabels=item_params)
         self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=listitem, isFolder=False, totalItems=listSize + 1)
@@ -461,8 +468,15 @@ class YouTubeNavigation():
 
         for result_params in results:
             result_params["path"] = get("path")
-            self.addFolderListItem(params, result_params, listSize + 1)
-
+            item = result_params.get
+            
+            # for purchases, we have either single videos or play lists, the only way we can tell
+            # is by looking for the videoid.
+            if len(item("videoid", "")) > 0:
+                self.addVideoListItem(params, result_params, 0)
+            else:
+                self.addFolderListItem(params, result_params, listSize + 1)
+            
         self.xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True, cacheToDisc=cache)
         self.common.log("Done", 5)
 

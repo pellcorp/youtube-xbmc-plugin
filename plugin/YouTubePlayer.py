@@ -57,8 +57,8 @@ class YouTubePlayer():
     urls['embed_stream'] = "http://www.youtube.com/get_video_info?video_id=%s"
     urls['video_info'] = "http://gdata.youtube.com/feeds/api/videos/%s"
 
-
     def __init__(self):
+        self.xbmc = sys.modules["__main__"].xbmc
         self.xbmcgui = sys.modules["__main__"].xbmcgui
         self.xbmcplugin = sys.modules["__main__"].xbmcplugin
 
@@ -74,13 +74,18 @@ class YouTubePlayer():
         self.core = sys.modules["__main__"].core
         self.login = sys.modules["__main__"].login
         self.subtitles = sys.modules["__main__"].subtitles
+        self.browser = sys.modules["__main__"].browser
 
         self.algoCache = {}
 
     def playVideo(self, params={}):
         self.common.log(repr(params), 3)
         get = params.get
-
+        
+        if get("drm", "no") == "yes":
+            self.browser.playVideo(get("videoid"))
+            return True
+        
         (video, status) = self.buildVideoObject(params)
 
         if status != 200:

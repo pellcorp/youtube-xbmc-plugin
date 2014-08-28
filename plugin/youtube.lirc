@@ -1,0 +1,23 @@
+# toggle space bar
+begin
+    prog = irxevent
+    button = KEY_PAUSE
+    repeat = 0
+    config = Key space Focus CurrentWindow
+end
+
+# toggle space bar
+begin
+    prog = irxevent
+    button = KEY_PLAY
+    repeat = 0
+    config = Key space Focus CurrentWindow
+end
+
+# exit browser
+begin
+    prog = irxevent
+    button = KEY_STOP
+    repeat = 0
+    config = Key ctrl-w Focus CurrentWindow
+end

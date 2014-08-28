@@ -19,7 +19,6 @@
 import sys
 import urllib
 
-
 class YouTubeScraper():
     urls = {}
     urls['disco_main'] = "http://www.youtube.com/disco"
@@ -29,6 +28,7 @@ class YouTubeScraper():
     urls['liked_videos'] = "http://www.youtube.com/my_liked_videos"
     urls['music'] = "http://www.youtube.com/music"
     urls['playlist'] = "http://www.youtube.com/view_play_list?p=%s"
+    urls['purchases'] = "http://www.youtube.com/purchases"
 
     def __init__(self):
         self.settings = sys.modules["__main__"].settings
@@ -43,6 +43,48 @@ class YouTubeScraper():
 
         self.feeds = sys.modules["__main__"].feeds
         self.storage = sys.modules["__main__"].storage
+
+#=================================== Purchases Scraper ============================================
+
+    def scrapeUserPurchases(self, params):
+        self.common.log("")
+
+        url = self.createUrl(params)
+        
+        result = self.core._fetchPage({"link": url, "login": "true"})
+        
+        contents = self.common.parseDOM(result["content"], "ul", {"class": "purchases-items-list"})
+        contents = self.common.parseDOM(contents, "li", {"class": "purchases-item"})
+        
+        playlist_items = []
+        for content in contents:
+            item = {}
+            item['drm'] = 'yes'
+            
+            datathumb = self.common.parseDOM(content, "img", ret="data-thumb");
+            if (len(datathumb) > 0):
+                item['thumbnail'] = datathumb[0];
+            else:
+                item['thumbnail'] = self.common.parseDOM(content, "img", ret="src")[0];
+            
+            item['thumbnail'] = item['thumbnail'].replace("https://", "http://");
+            
+            content = self.common.parseDOM(content, "div", {"class": "purchases-video-title"})[0]
+            
+            item['Title'] = self.common.replaceHTMLCodes(self.common.parseDOM(content, "a")[0])
+            href = self.common.parseDOM(content, "a", ret="href")[0]
+            
+            if (href.rfind("list=") > 0):
+                item['user_feed'] = 'playlist'
+                href = href[href.rfind("list=") + len("list="):]
+                item['playlist'] = href
+            elif (href.rfind("watch?v=") > 0):
+                href = href[href.rfind("watch?v=") + len("watch?v="):]
+                item['videoid'] = href;
+
+            playlist_items.append(item);
+        
+        return (playlist_items, 200)
 
 #=================================== User Scraper ============================================
 
@@ -95,6 +137,9 @@ class YouTubeScraper():
         if (get("scraper") in ["liked_videos", "watched_history"]):
             function = self.scrapeUserLikedVideos
 
+        if (get("scraper") == "purchases"):
+            function = self.scrapeUserPurchases
+        
         if function:
             params["new_results_function"] = function
 

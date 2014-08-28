@@ -24,6 +24,8 @@ import urllib2
 import xbmcaddon
 import cookielib
 import xbmcplugin
+import subprocess
+
 try:
     import xbmcvfs
 except ImportError:
@@ -96,6 +98,8 @@ if (__name__ == "__main__" ):
     feeds = YouTubeFeeds.YouTubeFeeds()
     import YouTubeSubtitleControl
     subtitles = YouTubeSubtitleControl.YouTubeSubtitleControl()
+    import YouTubeBrowser
+    browser = YouTubeBrowser.YouTubeBrowser()
     import YouTubePlayer
     player = YouTubePlayer.YouTubePlayer()
     import SimpleDownloader as downloader

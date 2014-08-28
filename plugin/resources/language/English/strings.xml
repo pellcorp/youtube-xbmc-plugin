@@ -64,6 +64,7 @@
     <string id="30057">YouTube Education</string>
     <string id="30058">Season %s</string>
     <string id="30059">My History</string>
+    <string id="30060">My Purchases</string>
 
     <!-- Plugin settings strings -->
     <string id="30200">Username</string>
@@ -152,7 +153,8 @@
     <string id="30286">Show YouTube Music</string>
     <string id="30287">Show YouTube Live</string>
     <string id="30288">Show YouTube History</string>
-
+	<string id="30289">Show Purchases</string>
+	
     <!-- Menu strings -->
     <string id="30500">Clear refinements</string>
     <string id="30501">Download video</string>
