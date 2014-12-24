@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Managed to resolve the issues with, but will leave this here anyway, as its a good fallback
-CHROME_STARTED=`ps -ef | grep google-chrome | grep -v "grep" | wc -l`
+# Prevent loading two or more tabs due to LIRC still being enabled in XBMC / KODI
+CHROME_STARTED=`ps -ef | grep google | grep chrome | grep -v "grep" | wc -l`
 if [ $CHROME_STARTED -gt 0 ]; then
 	exit 1;
 fi
@@ -16,15 +16,14 @@ if [ $IRXEVENT -eq 0 ]; then
 	killall irxevent >/dev/null 2>&1
 fi
 
-# http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-# This is the html 5 player url
-url="https://www.youtube.com/embed/$1?autoplay=1&autohide=1"
+url=$1
 
 # notice the ampersand to send google chrome into back ground so that the script continues and we execute the xdotool below
 /usr/bin/google-chrome --start-maximized --disable-translate --disable-new-tab-first-run --no-default-browser-check --no-first-run "$url" &
 CHROME_PID=$!
+
+# http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ $IRXEVENT -eq 0 ]; then
 	# run irxevent as a daemon so that we can call xdotool
